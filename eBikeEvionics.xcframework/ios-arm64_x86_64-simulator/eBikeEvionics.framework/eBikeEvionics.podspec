@@ -1,5 +1,5 @@
 Pod::Spec.new do |spec|
-  spec.name         = "eBikeEvionics"
+  spec.name         = "Evionics"
   spec.version      = "0.1.0"
   spec.summary      = "SDK for FTEX ebikes"
   spec.description  = <<-DESC
