@@ -1,0 +1,11 @@
+framework module eBikeEvionics {
+  umbrella header "eBikeEvionics.h"
+  export *
+
+  module * { export * }
+}
+
+module eBikeEvionics.Swift {
+  header "eBikeEvionics-Swift.h"
+  requires objc
+}

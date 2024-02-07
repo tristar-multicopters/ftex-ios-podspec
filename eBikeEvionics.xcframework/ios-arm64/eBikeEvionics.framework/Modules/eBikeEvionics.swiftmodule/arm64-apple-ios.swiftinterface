@@ -1,0 +1,335 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.9 (swiftlang-5.9.0.128.108 clang-1500.0.40.1)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name eBikeEvionics
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+import CoreBluetooth
+import Foundation
+import Swift
+import UIKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+@_exported import eBikeEvionics
+public enum DFUCommand : Swift.String {
+  case prepareForTransfer
+  case forceRollback
+  case eraseFile
+  case abortFileTransfer
+  case exitDfu
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum DFUStatus : Swift.UInt8 {
+  case normalState
+  case readyForTransfer
+  case transferCompleted
+  case startForwarding
+  case forwardComplete
+  case applyingDfu
+  case erasingFile
+  case fileErased
+  case initializationFailed
+  case imageNotValid
+  case badFWVersion
+  case forwardError
+  case internalError
+  case corruptedFrame
+  case missingFrame
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public struct BikeFirmware {
+  public let hardwareVersion: Swift.Int
+  public let bikeModel: Swift.Int
+  public let firmwareVersion: Swift.Int
+}
+public protocol BTeBikeDelegate : AnyObject {
+  func didReadFirmware()
+  func didReadConfigurationPayload()
+  func onValueRead(service: eBikeEvionics.ServiceUUIDs, characteristic: eBikeEvionics.CharacteristicsUUIDs, data: [Swift.UInt8]?)
+}
+public enum eBikeResult {
+  case status(Swift.Bool)
+  case speed(Swift.Double)
+  case power(Swift.Float)
+  case pasLevel(Swift.Int)
+  case battery(Swift.Int)
+  case test(Swift.Int)
+}
+@objc @_inheritsConvenienceInitializers public class BTeBike : ObjectiveC.NSObject {
+  public static var shared: eBikeEvionics.BTeBike
+  public var isPaired: Swift.Bool {
+    get
+  }
+  public var isConnected: Swift.Bool {
+    get
+  }
+  public var serialNumber: Swift.String
+  public var firmwareVersion: eBikeEvionics.BikeFirmware?
+  public var configurationPayload: eBikeEvionics.ConfigurationPayload?
+  public var registeredDevice: Swift.Bool
+  weak public var delegate: (any eBikeEvionics.BTeBikeDelegate)?
+  public func setBluetoothDevice(peripheral: CoreBluetooth.CBPeripheral?)
+  public func getBluetoothDevice() -> CoreBluetooth.CBPeripheral?
+  public func listenDevice(onEvent: @escaping (eBikeEvionics.eBikeResult) -> Swift.Void, onError: @escaping (eBikeEvionics.BikeError) -> Swift.Void)
+  public func getLastUpdate(completion: @escaping (eBikeEvionics.BTeBikeFirmwareVersion?) -> Swift.Void)
+  public func updateBike(firmware: eBikeEvionics.BTeBikeFirmwareVersion, onUpdateProgress: @escaping (Swift.Float) -> Swift.Void, onSuccess: @escaping () -> Swift.Void, onError: @escaping (eBikeEvionics.DFUError) -> Swift.Void)
+  @objc override dynamic public init()
+  @objc deinit
+}
+extension eBikeEvionics.BTeBike {
+  public func startDevice()
+  public func initializeDevice()
+  public func readPasLvl()
+  public func readCharacteristic(serviceId: eBikeEvionics.ServiceUUIDs, characteristicId: eBikeEvionics.CharacteristicsUUIDs)
+  public func notifyForCharacteristic(serviceId: eBikeEvionics.ServiceUUIDs, characteristicId: eBikeEvionics.CharacteristicsUUIDs)
+  public func turnOffBikeNotifications()
+  public func notifyForCharacteristics()
+}
+extension eBikeEvionics.BTeBike {
+  public func writePasLevel(level: Swift.Int)
+}
+extension eBikeEvionics.BTeBike {
+  public func writeSecurityPIN(pin: Swift.String) -> Swift.Bool
+}
+extension eBikeEvionics.BTeBike {
+  public func writeFirmwareHeader(header: eBikeEvionics.DFUCommand)
+  public func writeFirmwareImage(line: [Swift.UInt8])
+}
+extension eBikeEvionics.BTeBike : CoreBluetooth.CBPeripheralDelegate {
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didDiscoverServices error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didDiscoverCharacteristicsFor service: CoreBluetooth.CBService, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didUpdateValueFor characteristic: CoreBluetooth.CBCharacteristic, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didWriteValueFor characteristic: CoreBluetooth.CBCharacteristic, error: (any Swift.Error)?)
+}
+public enum BluetoothScanState {
+  case noDevices, oneDevice, multipleDevices
+  public static func == (a: eBikeEvionics.BluetoothScanState, b: eBikeEvionics.BluetoothScanState) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public protocol BluetoothManagerDelegate : AnyObject {
+  func onCentralManagerStateChanged(state: CoreBluetooth.CBManagerState)
+  func onDeviceDisconnected()
+}
+@objc @_inheritsConvenienceInitializers public class eBikeBluetoothManager : ObjectiveC.NSObject {
+  public static var shared: eBikeEvionics.eBikeBluetoothManager
+  public var centralManager: CoreBluetooth.CBCentralManager?
+  public var isDeviceSelected: Swift.Bool {
+    get
+  }
+  weak public var delegate: (any eBikeEvionics.BluetoothManagerDelegate)?
+  public func initializeCentral()
+  public func selectDevice(serialNumber: Swift.String?)
+  public func getSelectedSerialNumber() -> Swift.String?
+  public func getScannedSerialNumbers() -> [Swift.String?]
+  public func getScanState() -> eBikeEvionics.BluetoothScanState
+  @objc override dynamic public init()
+  @objc deinit
+}
+extension eBikeEvionics.eBikeBluetoothManager {
+  public func startScanning(uuid: Swift.String? = nil, timeOut: Foundation.TimeInterval = 20, completion: @escaping () -> Swift.Void)
+  public func stopScanning()
+  public func connect(onSuccess: (() -> Swift.Void)?, onFailure: ((eBikeEvionics.BTeBikeError?) -> Swift.Void)?)
+  public func disconnectBike()
+}
+extension eBikeEvionics.eBikeBluetoothManager : CoreBluetooth.CBCentralManagerDelegate {
+  @objc dynamic public func centralManagerDidUpdateState(_ central: CoreBluetooth.CBCentralManager)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didDiscover peripheral: CoreBluetooth.CBPeripheral, advertisementData: [Swift.String : Any], rssi RSSI: Foundation.NSNumber)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didConnect peripheral: CoreBluetooth.CBPeripheral)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didFailToConnect peripheral: CoreBluetooth.CBPeripheral, error: (any Swift.Error)?)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didDisconnectPeripheral peripheral: CoreBluetooth.CBPeripheral, error: (any Swift.Error)?)
+}
+extension eBikeEvionics.eBikeBluetoothManager : eBikeEvionics.BTeBikeDelegate {
+  public func didReadFirmware()
+  public func didReadConfigurationPayload()
+  public func onValueRead(service: eBikeEvionics.ServiceUUIDs, characteristic: eBikeEvionics.CharacteristicsUUIDs, data: [Swift.UInt8]?)
+}
+extension eBikeEvionics.eBikeBluetoothManager {
+  public func enableLogging()
+  public func disableLogging()
+}
+public struct BTeBikeFirmwareVersion : Swift.Decodable {
+  public let versionNumber: Swift.String
+  public let changelog: Swift.String
+  public let readMoreUrl: Swift.String?
+  public let createdAt: Swift.String?
+  public var createdAtDate: Foundation.Date? {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct ParseFile : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+public enum ServiceUUIDs : Swift.String {
+  case genericAccess
+  case deviceInformations
+  case gnrParameters
+  case otaDfu
+  public var cbUuid: CoreBluetooth.CBUUID {
+    get
+  }
+  public static func identifyService(uuid: CoreBluetooth.CBUUID?) -> eBikeEvionics.ServiceUUIDs?
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum CharacteristicsUUIDs : Swift.String {
+  case pasLvl
+  case status
+  case errors
+  case configPayload
+  case security
+  case otaStart
+  case otaStatus
+  case dataTransfer
+  case otaDataValidation
+  case manufacturerId
+  case serialNumber
+  case firmwareRevision
+  case hardwareRevision
+  public var cbUuid: CoreBluetooth.CBUUID {
+    get
+  }
+  public var expectedSize: Swift.Int {
+    get
+  }
+  public var canNotify: Swift.Bool {
+    get
+  }
+  public static func identifyUUID(uuid: CoreBluetooth.CBUUID?) -> eBikeEvionics.CharacteristicsUUIDs?
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public struct ScannedDevice {
+  public var peripheral: CoreBluetooth.CBPeripheral
+  public var advertisementData: [Swift.String : Any]
+  public var rssi: Swift.Double
+}
+public enum DFUError : Foundation.LocalizedError {
+  case unknown, networkError, invalidFirmwareFile, timeOut, initializationError, invalidImage, badVersion, forwardingError, internalError, corruptedFrame, missingFrame
+  public var errorDescription: Swift.String? {
+    get
+  }
+  public static func == (a: eBikeEvionics.DFUError, b: eBikeEvionics.DFUError) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers public class BTeBikeDFUManager {
+  @objc deinit
+}
+public enum BatteryLevel : Swift.Int, Swift.CaseIterable {
+  case empty
+  case low
+  case mediumLow
+  case mediumHigh
+  case high
+  case full
+  public init(percentage: Swift.Int)
+  public init?(rawValue: Swift.Int)
+  public typealias AllCases = [eBikeEvionics.BatteryLevel]
+  public typealias RawValue = Swift.Int
+  public static var allCases: [eBikeEvionics.BatteryLevel] {
+    get
+  }
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public struct BikeError {
+  public var type: eBikeEvionics.BikeErrorType
+  public var date: Foundation.Date
+  public init(bytes: [Swift.UInt8])
+}
+public enum IssueType {
+  case warning, error
+  public static func == (a: eBikeEvionics.IssueType, b: eBikeEvionics.IssueType) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public enum BikeErrorType : Swift.Int {
+  case noError
+  case motorOverTemperature
+  case motorStartupFault
+  case overCurrentFault
+  case hallSensorFault
+  case wheelSpeedSensorFault
+  case controllerOverVoltage
+  case controllerUnderVoltage
+  case controllerOverTemperature
+  case throttleFault
+  case pasFault
+  case communicationError
+  case modemError
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public enum BTeBikeError : Foundation.LocalizedError {
+  case unknown, serviceNotInitialized, deviceNotFound, deviceTurnedOff, timeOut, cbError(any Swift.Error)
+  public var errorDescription: Swift.String? {
+    get
+  }
+}
+public struct ConfigurationPayload {
+  public enum UpdateState : Swift.Int {
+    case none, done, interrupted
+    public init?(rawValue: Swift.Int)
+    public typealias RawValue = Swift.Int
+    public var rawValue: Swift.Int {
+      get
+    }
+  }
+  public var maxPas: Swift.Int
+  public var maxPower: Swift.UInt16
+  public var isOn: Swift.Bool
+  public init()
+  public init(byteArray: [Swift.UInt8]?)
+}
+extension eBikeEvionics.DFUCommand : Swift.Equatable {}
+extension eBikeEvionics.DFUCommand : Swift.Hashable {}
+extension eBikeEvionics.DFUCommand : Swift.RawRepresentable {}
+extension eBikeEvionics.DFUStatus : Swift.Equatable {}
+extension eBikeEvionics.DFUStatus : Swift.Hashable {}
+extension eBikeEvionics.DFUStatus : Swift.RawRepresentable {}
+extension eBikeEvionics.BluetoothScanState : Swift.Equatable {}
+extension eBikeEvionics.BluetoothScanState : Swift.Hashable {}
+extension eBikeEvionics.ServiceUUIDs : Swift.Equatable {}
+extension eBikeEvionics.ServiceUUIDs : Swift.Hashable {}
+extension eBikeEvionics.ServiceUUIDs : Swift.RawRepresentable {}
+extension eBikeEvionics.CharacteristicsUUIDs : Swift.Equatable {}
+extension eBikeEvionics.CharacteristicsUUIDs : Swift.Hashable {}
+extension eBikeEvionics.CharacteristicsUUIDs : Swift.RawRepresentable {}
+extension eBikeEvionics.DFUError : Swift.Equatable {}
+extension eBikeEvionics.DFUError : Swift.Hashable {}
+extension eBikeEvionics.BatteryLevel : Swift.Equatable {}
+extension eBikeEvionics.BatteryLevel : Swift.Hashable {}
+extension eBikeEvionics.BatteryLevel : Swift.RawRepresentable {}
+extension eBikeEvionics.IssueType : Swift.Equatable {}
+extension eBikeEvionics.IssueType : Swift.Hashable {}
+extension eBikeEvionics.BikeErrorType : Swift.Equatable {}
+extension eBikeEvionics.BikeErrorType : Swift.Hashable {}
+extension eBikeEvionics.BikeErrorType : Swift.RawRepresentable {}
+extension eBikeEvionics.ConfigurationPayload.UpdateState : Swift.Equatable {}
+extension eBikeEvionics.ConfigurationPayload.UpdateState : Swift.Hashable {}
+extension eBikeEvionics.ConfigurationPayload.UpdateState : Swift.RawRepresentable {}
