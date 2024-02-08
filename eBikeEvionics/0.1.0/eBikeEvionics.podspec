@@ -9,7 +9,7 @@ Pod::Spec.new do |spec|
   spec.license      = "MIT"
   spec.author       = { "Matt Farough" => "matt.farough@ftex.ca" }
   spec.platform     = :ios, "12.0"
-  spec.source       = { :http => "https://github.com/tristar-multicopters/ftex-ios-podspec/releases/download/0.1.0/eBikeEvionics.xcframework"}
+  spec.source       = { :http => "https://github.com/tristar-multicopters/ftex-ios-podspec/releases/download/0.1.0/eBikeEvionics.xcframework.zip"}
   spec.source_files  = "**/*.{h,m,swift}"
   spec.exclude_files = "eBikeEvionics/Exclude"
   spec.ios.vendored_frameworks  = "eBikeEvionics.xcframework"
