@@ -10,7 +10,7 @@ Pod::Spec.new do |spec|
   spec.author       = { "Matt Farough" => "matt.farough@ftex.ca" }
   spec.platform     = :ios, "12.0"
   spec.source       = { :git => "https://github.com/tristar-multicopters/ftex-ios-podspec.git", :tag => "0.1.0"}
-  spec.source_files  = "eBikeEvionics/**/*.{h,m,swift}"
+  spec.source_files  = "**/*.{h,m,swift}"
   spec.exclude_files = "eBikeEvionics/Exclude"
   spec.ios.vendored_frameworks  = "eBikeEvionics.xcframework"
 end
