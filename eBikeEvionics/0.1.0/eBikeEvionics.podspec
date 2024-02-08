@@ -9,7 +9,8 @@ Pod::Spec.new do |spec|
   spec.license      = "MIT"
   spec.author       = { "Matt Farough" => "matt.farough@ftex.ca" }
   spec.platform     = :ios, "12.0"
-  spec.source       = { :http => "https://drive.google.com/file/d/1MTExUjfglFacaQtU66xxMeAh-9tXo4Xj/view?usp=sharing", :type => "zip"}
+  
+  spec.source       = { :http => "https://drive.google.com/file/d/1MTExUjfglFacaQtU66xxMeAh-9tXo4Xj/view?usp=drive_link", :type => "zip"}
   spec.source_files  = "**/*.{h,m,swift}"
   spec.exclude_files = "eBikeEvionics/Exclude"
   spec.ios.vendored_frameworks  = "eBikeEvionics.xcframework"
